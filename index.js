@@ -12,6 +12,23 @@ app.listen(port, () => {
 
 const users = []
 
+const checkUserId = (request, response, next) => {
+    const { id } = request.params
+
+    const index = users.findIndex(user => user.id === id)
+
+    if (index < 0) {
+        return response.status(404).json({ error: 'User not found' })
+    }
+
+    request.userIndex = index
+    request.userId=id
+    
+    
+    next()
+}
+
+
 app.get('/users', (request, response) => {
     return response.json(users)
 })
@@ -28,18 +45,17 @@ app.post('/users', (request, response) => {
 })
 
 
-app.put('/users/:id', (request, response) => {
+app.put('/users/:id', checkUserId, (request, response) => {
 
-    const { id } = request.params
     const { name, age } = request.body
+
+    const index = request.userIndex
+
+    const id = request.userId
 
     const updatedUser = { id, name, age }
 
-    const index = users.findIndex(user => user.id === id)
 
-    if (index < 0) {
-        return response.status(404).json({ message: 'User not found' })
-    }
 
     users[index] = updatedUser
 
@@ -48,18 +64,11 @@ app.put('/users/:id', (request, response) => {
     return response.json(updatedUser)
 })
 
-app.delete('/users/:id', (request, response) => {
-    const { id } = request.params
+app.delete('/users/:id', checkUserId, (request, response) => {
+   
+    const index = request.userIndex
 
-    const index = users.findIndex(user => user.id === id)
-
-    if (index < 0) {
-        return response.status(404).json({ message: 'User not found' })
-    }
-
-    users.splice(index,1)
-
-
+    users.splice(index, 1)
 
     return response.status(204).json()
 })
