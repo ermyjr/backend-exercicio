@@ -73,6 +73,23 @@ app.delete('/users/:id', checkUserId, (request, response) => {
     return response.status(204).json()
 })
 
+app.get('/orders/:id', checkUserId, requests, (request, response) => {
+    const index = request.userIndex
+    const order = orders[index]
+
+    return response.json(order)
+})
+app.patch('/orders/:id', checkUserId, requests, (request, response) => {
+    const index = request.userIndex
+    const { id, clientName, order, price } = orders[index]
+    let status = orders[index].status
+    status = "Pedido Pronto"
+    const finishedOrder = { id, order, clientName, price, status }
+    orders[index] = finishedOrder
+
+    return response.json(finishedOrder)
+})
+
 
 
 
